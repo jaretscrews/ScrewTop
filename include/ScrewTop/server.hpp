@@ -4,17 +4,14 @@
 #include <netinet/in.h>
 #include <cstdlib>
 
-namespace ScrewTop
-{
-    class Server
-    {
+namespace ScrewTop {
+    class Server {
     public:
         int init();
-        void loop();
+        void handleConnection();
         void tearDown();
     private:
         int m_sockFd;
         sockaddr_in m_sockAddrIn;
-
     };
 }

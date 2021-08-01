@@ -4,14 +4,15 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <signal.h>
 
 namespace ScrewTop
 {
-    int Server::init()
-    {
+    int Server::init() {
+        std::cout << "Starting ScrewTop" << std::endl;
+
         m_sockFd = socket(AF_INET, SOCK_STREAM, 0);
-        if (m_sockFd == -1)
-        {
+        if (m_sockFd == -1) {
             std::cerr << "Failed to create socket: " << errno << std::endl;
             exit (EXIT_FAILURE);
         }
@@ -20,24 +21,24 @@ namespace ScrewTop
         m_sockAddrIn.sin_addr.s_addr = INADDR_ANY;
         m_sockAddrIn.sin_port = htons(9999);
 
-        if (bind(m_sockFd, (struct sockaddr*)&m_sockAddrIn, sizeof(m_sockAddrIn)) < 0)
-        {
+        if (bind(m_sockFd, (struct sockaddr*)&m_sockAddrIn, sizeof(m_sockAddrIn)) < 0) {
             std::cerr << "Failed to bind to port 9999: " << errno << std::endl;
             exit (EXIT_FAILURE);
         }
 
+
+        std::cout << "ScrewTop has started!" << std::endl;
         return 0;
     }
 
-    void Server::loop()
-    {
-        if (listen(m_sockFd, 10) < 0)
-        {
+    void Server::handleConnection() {
+        if (listen(m_sockFd, 10) < 0) {
             std::cerr << "Failed to listen on socket: " << errno << std::endl;
             exit (EXIT_FAILURE);
         }
 
         auto addrlen = sizeof(m_sockAddrIn);
+
         auto connection = accept(m_sockFd, (struct sockaddr*)&m_sockAddrIn, (socklen_t*)&addrlen);
         if (connection < 0)
         {
@@ -66,8 +67,9 @@ namespace ScrewTop
         close(connection);
     }
 
-    void Server::tearDown()
-    {
+    void Server::tearDown() {
+        std::cout << "ScrewTop tearing down" << std::endl;
         close(m_sockFd);
+        std::cout << "ScrewTop torn down" << std::endl;
     }
 }
